@@ -22,7 +22,7 @@ Cursor movement is continuous and always active — it follows the bounding box 
 
 ## Demo
 
-A short walkthrough video is included: [`video_tutorial.mp4`](video_tutorial.mp4). Sample captures used for building the dataset are in [`image sample/`](image%20sample).
+A short walkthrough video is included: ![`video_tutorial.mp4`](video_tutorial.mp4). Sample captures used for building the dataset are in [`image sample/`](image%20sample).
 
 ## Project structure
 
