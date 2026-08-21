@@ -1,130 +1,265 @@
-# Contrôle Mousse With Hand Gesture ✋🖱️
+# Hand Gesture Mouse Control ✋🖱️
 
-Control your mouse cursor and clicks using nothing but your webcam and hand gestures. The project tracks your hand in real time with **MediaPipe**, classifies the gesture with a **scikit-learn** model, and drives the system cursor with **PyAutoGUI**.
+A real-time **computer vision and machine learning** application that allows you to control your computer mouse using hand gestures and a webcam — without a physical mouse.
 
-## How it works
+The system uses **MediaPipe** to detect hand landmarks, **scikit-learn** to classify gestures, and **PyAutoGUI** to translate predictions into mouse actions.
 
-1. **Hand tracking** — `HandLandMarks.py` wraps MediaPipe's `HandLandmarker` (live-stream, video, and single-image modes) to extract 21 3D hand landmarks per frame from the webcam feed.
-2. **Normalization** — `landmark_utils.py` centers the landmarks on the wrist and scales them so the classifier is invariant to hand position and distance from the camera.
-3. **Classification** — a scikit-learn pipeline (best of Logistic Regression / Random Forest, chosen by cross-validation in `retrain_model.py`) predicts one of four gestures from the normalized landmarks.
-4. **Control** — `main.py` moves the cursor to the (smoothed) center of the hand's bounding box every frame, and triggers mouse actions when a gesture is predicted with high confidence.
+## 🎥 Demo
 
-### Supported gestures
+The application tracks your hand in real time and converts recognized gestures into mouse interactions.
 
-| Gesture label | Action |
-|---|---|
-| `click` | Left mouse click |
-| `release` | Reserved for drag/release (currently disabled in code) |
-| `scroll_up` | Scroll up |
-| `scroll_down` | Scroll down |
+**Supported interactions:**
 
-Cursor movement is continuous and always active — it follows the bounding box of the detected hand, smoothed with an exponential moving average to avoid jitter.
+| Gesture       | Action                    |
+| ------------- | ------------------------- |
+| `click`       | Left mouse click          |
+| `scroll_up`   | Scroll up                 |
+| `scroll_down` | Scroll down               |
+| `release`     | Reserved for drag/release |
 
-## Demo
+> **Note:** The `release` gesture is currently reserved for future drag-and-drop functionality.
 
-A short walkthrough video is included:
+## ⚙️ How It Works
 
+The application follows this pipeline:
 
-
-https://github.com/user-attachments/assets/7b2dfda4-83e3-4908-91ed-8eb6d27b76db
-
-
-
-Sample captures used for building the dataset are in [`image sample/`](image%20sample).
-
-## Project structure
-
+```text
+Webcam
+   ↓
+MediaPipe HandLandmarker
+   ↓
+21 Hand Landmarks
+   ↓
+Landmark Normalization
+   ↓
+Machine Learning Classifier
+   ↓
+Gesture Prediction
+   ↓
+Mouse Action
 ```
-Controle_Mousse_With_Hand_Gesture/
-├── main.py                # Real-time gesture-controlled mouse (entry point)
-├── dataset.py              # Webcam-based dataset collection utility
-├── retrain_model.py         # Trains/evaluates the classifier and saves the model
-├── landmark_utils.py        # Landmark normalization helpers
-├── HandLandMarks.py         # MediaPipe HandLandmarker wrapper (image/video/live-stream)
-├── notebook.ipynb           # Exploratory training/analysis notebook
+
+### 1. Hand Tracking
+
+`HandLandMarks.py` uses **MediaPipe HandLandmarker** to detect the user's hand from the webcam and extract **21 three-dimensional landmarks** for each frame.
+
+The implementation supports:
+
+* Live-stream mode
+* Video mode
+* Single-image mode
+
+### 2. Landmark Normalization
+
+`landmark_utils.py` preprocesses the detected landmarks before classification.
+
+The landmarks are:
+
+* Centered relative to the wrist
+* Scaled to reduce the effect of hand size and camera distance
+* Converted into features suitable for machine learning
+
+This helps the classifier focus on the **shape of the gesture** rather than its position in the camera frame.
+
+### 3. Gesture Classification
+
+A **scikit-learn** machine learning pipeline is used to classify the normalized landmarks.
+
+The project evaluates:
+
+* Logistic Regression
+* Random Forest
+
+The best-performing model is selected through cross-validation in `retrain_model.py`.
+
+The classifier predicts one of the supported gestures:
+
+```text
+click
+scroll_up
+scroll_down
+release
+```
+
+### 4. Mouse Control
+
+`main.py` connects the gesture predictions to the operating system using **PyAutoGUI**.
+
+The hand's bounding-box center is mapped to the screen position, allowing the user to control the cursor naturally.
+
+An **exponential moving average** is used to smooth cursor movement and reduce jitter.
+
+## 🧠 Machine Learning Pipeline
+
+```text
+Hand Landmarks
+      ↓
+Feature Extraction
+      ↓
+Normalization
+      ↓
+Train / Validation
+      ↓
+Cross-Validation
+      ↓
+Best Model Selection
+      ↓
+Real-Time Prediction
+```
+
+This approach allows the system to learn gesture patterns instead of relying entirely on manually defined rules.
+
+## 🛠️ Technologies
+
+* **Python**
+* **OpenCV** — webcam and image processing
+* **MediaPipe** — hand landmark detection
+* **scikit-learn** — gesture classification
+* **PyAutoGUI** — mouse automation
+* **NumPy** — numerical processing
+
+## 📁 Project Structure
+
+```text
+Hand-Gesture-Classifier-Mouse-Control/
+│
+├── main.py
+├── HandLandMarks.py
+├── landmark_utils.py
+├── retrain_model.py
+├── dataset.py
+│
+├── models/
+│   └── ...
+│
+├── data/
+│   └── ...
+│
 ├── requirements.txt
-├── Dataset/
-│   ├── data.csv              # Training data
-│   ├── validation.csv         # Validation data
-│   ├── samples.csv / samples2.csv  # Raw collected samples
-├── resources/
-│   ├── hand_landmarker.task    # MediaPipe hand landmark detection model
-│   └── model.pl                # Trained gesture classifier (joblib)
-├── image sample/             # Example frames from data collection
-└── video_tutorial.mp4        # Demo/tutorial video
+└── README.md
 ```
 
-## Installation
+## 🚀 Installation
 
-Requires **Python 3.9+**.
+### 1. Clone the repository
 
 ```bash
-git clone <this-repo-url>
-cd Controle_Mousse_With_Hand_Gesture
+git clone https://github.com/lotfiab1/Hand-Gesture-Classifier-Mouse-Control.git
+
+cd Hand-Gesture-Classifier-Mouse-Control
+```
+
+### 2. Create a virtual environment
+
+```bash
+python -m venv .venv
+```
+
+Activate it on Windows:
+
+```bash
+.venv\Scripts\activate
+```
+
+On Linux/macOS:
+
+```bash
+source .venv/bin/activate
+```
+
+### 3. Install dependencies
+
+```bash
 pip install -r requirements.txt
 ```
 
-### Dependencies
-
-- `mediapipe` — hand landmark detection
-- `opencv-python` — webcam capture and drawing
-- `pyautogui` — cursor and mouse control
-- `pandas`, `numpy` — data handling
-- `scikit-learn`, `joblib` — model training and persistence
-- `matplotlib` — used in the exploratory notebook
-
-## Usage
-
-### Run gesture mouse control
+### 4. Run the application
 
 ```bash
 python main.py
 ```
 
-- A camera window opens showing the live feed with hand landmarks, bounding box, and the predicted gesture + confidence.
-- Move your hand to move the cursor; hold a recognized gesture to trigger its action.
-- Press `q` or close the window to quit.
+Make sure your webcam is connected and accessible.
 
-> ⚠️ **Safety note:** `pyautogui.FAILSAFE` is enabled — move the mouse to a screen corner at any time to abort if the cursor misbehaves.
+## 🎮 Usage
 
-### Collect your own training data
+1. Start the application.
+2. Allow access to your webcam.
+3. Place your hand in front of the camera.
+4. Move your hand to control the cursor.
+5. Perform a supported gesture to trigger a mouse action.
 
-```python
-from HandLandMarks import HandLandmarksHandleLiveStream
-from dataset import generate_dataset
+For the best experience:
 
-labels = ["click", "release", "scroll_up", "scroll_down"]
+* Use good lighting.
+* Keep your hand clearly visible.
+* Avoid excessive background movement.
+* Keep a reasonable distance from the camera.
 
-with HandLandmarksHandleLiveStream() as landmarker:
-    generate_dataset(landmarker, labels, "Dataset/data.csv", num_samples=200)
+## 🔬 Training the Model
+
+The project includes tools for retraining the gesture classifier.
+
+The general workflow is:
+
+```text
+Collect Gesture Data
+        ↓
+Extract Hand Landmarks
+        ↓
+Normalize Features
+        ↓
+Train Classifiers
+        ↓
+Cross-Validation
+        ↓
+Select Best Model
 ```
 
-This opens the webcam and records normalized landmark samples for each label in turn (with a countdown between labels), saving them to CSV.
-
-### Retrain the model
+To retrain the model:
 
 ```bash
 python retrain_model.py
 ```
 
-This loads `Dataset/data.csv` and `Dataset/validation.csv`, cross-validates Logistic Regression and Random Forest pipelines, picks the best performer on the validation set, prints per-label accuracy, and saves the winning model to `resources/model.pl`.
+You can collect additional samples and retrain the classifier to improve recognition for different users, environments, or hand positions.
 
-## Configuration
+## 🔮 Future Improvements
 
-Key tunables live at the top of `main.py`:
+Planned improvements include:
 
-| Variable | Purpose | Default |
-|---|---|---|
-| `CONFIDENCE_THRESHOLD` | Minimum model confidence to act on a prediction | `0.75` |
-| `SMOOTHING` | Cursor movement smoothing factor (0–1, higher = snappier) | `0.35` |
-| `EDGE_MARGIN` | Pixel margin keeping the cursor off screen edges | `2` |
+* [ ] Right-click gesture
+* [ ] Double-click gesture
+* [ ] Drag-and-drop support
+* [ ] Gesture-based application shortcuts
+* [ ] More robust gesture recognition
+* [ ] Improved cursor calibration
+* [ ] Multi-hand interaction
+* [ ] Real-time model performance metrics
+* [ ] Improved UI for configuration and calibration
 
-## Notes & limitations
+## 📌 Project Goals
 
-- Currently tuned for a **single hand**; only the first detected hand drives the cursor.
-- The `release`/drag-hold logic is present in the code but commented out — clicks are simple press events, not click-and-hold.
-- Performance depends on lighting and camera quality, since it relies entirely on MediaPipe's hand landmark detection.
+This project was developed to explore the combination of:
 
-## License
+* Real-time computer vision
+* Hand tracking
+* Machine learning classification
+* Feature engineering
+* Human-computer interaction
+* Desktop automation
 
-This project is open source and available for educational and personal use. [LICENSE](./blob/master/LICENSE)
+The goal is to demonstrate how machine learning and computer vision can be used to create practical, interactive applications.
+
+## 👨‍💻 Author
+
+**Lotfi Ait Baaya**
+
+Junior Data Analyst & AI Developer
+
+* GitHub: https://github.com/lotfiab1
+* Portfolio: https://lotfiab1.github.io/lotfi-protfolio/
+
+---
+
+Disclaimer: This project is open source and available for educational and personal use. [LICENSE](./blob/master/LICENSE)
