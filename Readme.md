@@ -8,6 +8,8 @@ The system uses **MediaPipe** to detect hand landmarks, **scikit-learn** to clas
 
 The application tracks your hand in real time and converts recognized gestures into mouse interactions.
 
+https://github.com/user-attachments/assets/7b2dfda4-83e3-4908-91ed-8eb6d27b76db
+
 **Supported interactions:**
 
 | Gesture       | Action                    |
@@ -262,4 +264,4 @@ Junior Data Analyst & AI Developer
 
 ---
 
-Disclaimer: This project is open source and available for educational and personal use. [LICENSE](./blob/master/LICENSE)
+Disclaimer: This project is open source and available for educational and personal use. [LICENSE](./blob/master/LICENSE.md)
