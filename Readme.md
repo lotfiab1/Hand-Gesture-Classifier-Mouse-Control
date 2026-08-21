@@ -264,4 +264,8 @@ Junior Data Analyst & AI Developer
 
 ---
 
-Disclaimer: This project is open source and available for educational and personal use. [LICENSE](./blob/master/LICENSE.md)
+# 📜 License
+
+This repository is available under the **MIT License**.
+
+See the [LICENSE](./LICENSE) file for details.
