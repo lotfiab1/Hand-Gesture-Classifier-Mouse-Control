@@ -29,11 +29,12 @@ class CursorState:
         self.smoothed_y = None
         self.is_dragging = False
         self.last_label = None
+        self.Show_Landmarks = True
 
 
-def move_mousse(state, w_img, h_img, p1, p2):
+def move_mousse(state, w, h, w_img, h_img, p1, p2):
 
-    w, h = pyautogui.size()
+    
 
     center_x = p1[0] + (p2[0] - p1[0]) / 2
     center_y = p1[1] + (p2[1] - p1[1]) / 2
@@ -85,8 +86,14 @@ def handle_action(state, predicted_label):
 
 
 def openWindow(cap, landmarker, model, labels, state):
+
     wnd_name = 'Camera Viewer'
+    last_drawing = time.time()
+    result = None
+    w_screen, h_screen = pyautogui.size()
+
     while True:
+
         ret, frame = cap.read()
         if not ret:
             continue
@@ -95,9 +102,14 @@ def openWindow(cap, landmarker, model, labels, state):
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         mp_img = landmarker.ToMpImage(rgb_frame)
         timestamps = int(time.time() * 1000)
-        result = landmarker.getLandmarks(mp_img, timestamps)
+        
+        if state.Show_Landmarks:
+            result = landmarker.getLandmarks(mp_img, timestamps)
 
-        if result and result.hand_landmarks:
+        if state.Show_Landmarks and  result and result.hand_landmarks:
+
+            last_drawing = time.time()
+            state.Show_Landmarks = False
 
             for hand in result.hand_landmarks:
 
@@ -115,7 +127,7 @@ def openWindow(cap, landmarker, model, labels, state):
                 rectangle(frame, p1, p2)
                 landmarker.drawLandmarks(frame, hand)
 
-                move_mousse(state, w, h, p1, p2)
+                move_mousse(state, w_screen, h_screen, w, h, p1, p2)
 
                 if confidence >= CONFIDENCE_THRESHOLD:
                     predicted_label = labels.get(pred_idx, "Not Found")
@@ -124,7 +136,11 @@ def openWindow(cap, landmarker, model, labels, state):
                 else:
                     text(frame, f'... ({confidence:.2f})', (text_x, text_y))
 
+
         cv2.imshow(wnd_name, frame)
+
+        if time.time() - last_drawing :
+            state.Show_Landmarks = True
 
         if shouldClose(wnd_name):
             break
@@ -133,6 +149,10 @@ def openWindow(cap, landmarker, model, labels, state):
 if __name__ == '__main__':
 
     cap = cv2.VideoCapture(0)
+
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+    cap.set(cv2.CAP_PROP_FPS, 30)
 
     if not cap.isOpened():
         print('Failed Open Camera')

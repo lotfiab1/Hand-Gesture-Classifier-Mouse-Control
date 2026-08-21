@@ -77,7 +77,7 @@ class HandLandmarksHandleVideo(HandLandmarkerHandle):
         options = HandLandmarkerOptions(
                 base_options=python.BaseOptions(model_asset_path=model_path),
                 running_mode=mp.tasks.vision.RunningMode.VIDEO,
-                num_hands = 2
+                num_hands = 1
             ) 
         super().__init__(options)
     def getLandmarks(self,img,timestamp_ms):
@@ -91,7 +91,7 @@ class HandLandmarksHandleLiveStream(HandLandmarkerHandle):
                 base_options=python.BaseOptions(model_asset_path=model_path),
                 running_mode=mp.tasks.vision.RunningMode.LIVE_STREAM,
                 result_callback = save_result_callback,
-                num_hands = 2
+                num_hands = 1
             ) 
         super().__init__(options)
     def getLandmarks(self,img,timestamp_ms):
